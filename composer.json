@@ -3,7 +3,9 @@
     "description": "OriginPHP Html",
     "type": "library",
     "keywords": [
-        "originphp"
+        "originphp",
+        "html",
+        "html2text"
     ],
     "homepage": "https://www.originphp.com",
     "license": "MIT",
