@@ -14,6 +14,12 @@ To install this package
 $ composer require originphp/html
 ```
 
+Then add to your file
+
+```
+use Origin\Html\Html;
+```
+
 ## From Text
 
 If you need to convert a text block to html
@@ -43,7 +49,7 @@ $html = Html::fromText($text,['tag'=>'div']);
 
 ## To Text
 
-You can also convert HTML to formatted text, note this proably will not work well for websites, but emails, user inputted HTML using editors etc should be fine.
+You can also convert a HTML string to formatted text
 
 ```php
 $text = Html::toText($html);
@@ -180,8 +186,6 @@ $text = Html::toText($html,['format'=>false]);
 ```
 The main difference is headings, tables, code etc are not formatted. The HTML is cleaned up, line breaks are added, and lists are converted. If a list has a sublist then indentation will be added.
 
-> For security reasons text will be escaped first, if you don't want this behavior then pass the options array with the key escape, and set to false.
-
 ## Minify
 
 Minify cleans up the spacing, removes comments and thus minifies a HTML string.
@@ -193,7 +197,7 @@ $minified = Html::minify($html);
 
 ## Sanitize
 
-Sanitize enables to only allow certain tags and attributes in a Html string.
+Sanitize enables to only allow certain tags and attributes in a HTML string.
 
 ```php
 $html = Html::sanitize($html,[
