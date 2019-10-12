@@ -184,6 +184,7 @@ To create text version without formatting:
 ```php
 $text = Html::toText($html,['format'=>false]);
 ```
+
 The main difference is headings, tables, code etc are not formatted. The HTML is cleaned up, line breaks are added, and lists are converted. If a list has a sublist then indentation will be added.
 
 ## Minify
