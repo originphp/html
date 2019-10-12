@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    colors="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    bootstrap="vendor/autoload.php"
+    backupGlobals="true"
+    >
+    <testsuites>
+        <testsuite name="OriginPHP Html">
+            <directory>./tests/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./src/</directory>
+        </whitelist>
+    </filter>
+    <php>
+       <const name="PHPUNIT" value="true"/>
+       <env name="ORIGIN_ENV" value="test"/>
+    </php>
+</phpunit>
