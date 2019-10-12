@@ -1,5 +1,5 @@
 <?php
-namespace App\Test\Html;
+namespace Origin\Test\Html;
 
 use Origin\Html\Html;
 
