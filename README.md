@@ -110,6 +110,7 @@ if (php_sapi_name() != 'cli') {
 }
 ... truncated
 </code></pre>
+EOF;
 ```
 
 Will output
