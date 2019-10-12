@@ -43,7 +43,7 @@ $html = Html::fromText($text,['tag'=>'div']);
 
 ## To Text
 
-To convert HTML to formatted text
+You can also convert HTML to formatted text, note this proably will not work well for websites, but emails, user inputted HTML using editors etc should be fine.
 
 ```php
 $text = Html::toText($html);
