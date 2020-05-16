@@ -83,10 +83,10 @@ class Html
 
             # Check parent and one level up for e.g pre + code Not sure of other examples
             if (! in_array($node->parentNode->nodeName, $keepWhitespaceAround)) {
-                if ($node->previousSibling and ! in_array($node->previousSibling->nodeName, $keepWhitespaceAround)) {
+                if ($node->previousSibling && ! in_array($node->previousSibling->nodeName, $keepWhitespaceAround)) {
                     $node->nodeValue = ltrim($node->nodeValue);
                 }
-                if ($node->nextSibling and ! in_array($node->nextSibling->nodeName, $keepWhitespaceAround)) {
+                if ($node->nextSibling && ! in_array($node->nextSibling->nodeName, $keepWhitespaceAround)) {
                     $node->nodeValue = rtrim($node->nodeValue);
                 }
             }
@@ -237,7 +237,7 @@ class Html
                 $indent = static::getIndentLevel($tag);
                 $pre = str_repeat(' ', $indent);
                 foreach ($tag->childNodes as $child) {
-                    if (isset($child->tagName) and $child->tagName === 'li') {
+                    if (isset($child->tagName) && $child->tagName === 'li') {
                         $child->nodeValue = $lineBreak . $pre .  $count . '. ' . static::htmlspecialchars($child->nodeValue);
                         $child->nodeValue = rtrim($child->nodeValue) . PHP_EOL; // friendly with nested lists
                         $count++;
@@ -255,7 +255,7 @@ class Html
                 foreach ($tag->getElementsByTagName('tr') as $node) {
                     $row = [];
                     foreach ($node->childNodes as $child) {
-                        if (isset($child->tagName) and ($child->tagName === 'td' or $child->tagName === 'th')) {
+                        if (isset($child->tagName) && ($child->tagName === 'td' || $child->tagName === 'th')) {
                             if ($child->tagName === 'th') {
                                 $headers = true;
                             }
@@ -281,7 +281,7 @@ class Html
                 $pre = str_repeat(' ', $indent);
 
                 foreach ($tag->childNodes as $child) {
-                    if (isset($child->tagName) and $child->tagName === 'li') {
+                    if (isset($child->tagName) && $child->tagName === 'li') {
                         $child->nodeValue = $lineBreak . $pre . '* ' .   static::htmlspecialchars($child->nodeValue);
                         $child->nodeValue = rtrim($child->nodeValue) . PHP_EOL; // friendly with nested lists
                         $lineBreak = null;
@@ -441,7 +441,7 @@ class Html
         }
 
         $remove = $change = $attributes = [];
-        if (! isset($tags[$node->nodeName]) and $node->nodeName !== 'body') {
+        if (! isset($tags[$node->nodeName]) && $node->nodeName !== 'body') {
             $remove[] = $node;
             /* This is for keeping text between divs. Keep for now until committed
             foreach ($node->childNodes as $child) {
@@ -452,7 +452,7 @@ class Html
 
         if ($node->attributes) {
             foreach ($node->attributes as $attr) {
-                if (! isset($tags[$node->nodeName]) or ! in_array($attr->nodeName, $tags[$node->nodeName])) {
+                if (! isset($tags[$node->nodeName]) || ! in_array($attr->nodeName, $tags[$node->nodeName])) {
                     $attributes[] = $attr->nodeName;
                 }
             }
