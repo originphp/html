@@ -64,35 +64,38 @@ class Html
         $doc = new DOMDocument();
         $doc->preserveWhiteSpace = false;
         $doc->formatOutput = false;
+        @$doc->loadHTML($html, LIBXML_HTML_NODEFDTD);
         $doc->normalizeDocument();
 
-        $html = preg_replace('/(?=<!--)([\s\S]*?)-->/', '', $html); // Remove comments
+        // remove comments respecting pre
+        foreach ((new DOMXPath($doc))->query('//comment()') as $comment) {
+            $comment->parentNode->removeChild($comment);
+        }
 
-        @$doc->loadHTML($html, LIBXML_HTML_NODEFDTD);
-        $x = new DOMXPath($doc);
-        $nodes = $x->query('//text()');
+        foreach ((new DOMXPath($doc))->query('//text()') as $node) {
 
-        foreach ($nodes as $node) {
-            // Check parent, plus 1 parent level e.g pre/code
-            if (in_array($node->parentNode->nodeName, $keepWhitespace) or in_array($node->parentNode->parentNode->nodeName, $keepWhitespace)) {
+            // check parent and parent plus 1
+            if (in_array($node->parentNode->nodeName, $keepWhitespace) || in_array($node->parentNode->parentNode->nodeName, $keepWhitespace)) {
                 continue;
             }
-            // Will using regex cause performance issues on large html files?
+            /**
+             * Really want to strip new lines in between tags, however certain elements require
+             * a space to be displayed properly
+             */
             $node->nodeValue = str_replace(["\r\n", "\n", "\r", "\t"], '', $node->nodeValue);
-            $node->nodeValue = preg_replace('/\s{2,}/', ' ', $node->nodeValue);
-
+            $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
+         
             # Check parent and one level up for e.g pre + code Not sure of other examples
-            if (! in_array($node->parentNode->nodeName, $keepWhitespaceAround)) {
-                if ($node->previousSibling && ! in_array($node->previousSibling->nodeName, $keepWhitespaceAround)) {
-                    $node->nodeValue = ltrim($node->nodeValue);
-                }
-                if ($node->nextSibling && ! in_array($node->nextSibling->nodeName, $keepWhitespaceAround)) {
-                    $node->nodeValue = rtrim($node->nodeValue);
-                }
+            if ($node->previousSibling && ! in_array($node->previousSibling->nodeName, $keepWhitespaceAround)) {
+                $node->nodeValue = ltrim($node->nodeValue);
+            }
+            
+            if ($node->nextSibling && ! in_array($node->nextSibling->nodeName, $keepWhitespaceAround)) {
+                $node->nodeValue = rtrim($node->nodeValue);
             }
         }
 
-        return trim($doc->saveHTML() ?? 'An error occured');
+        return trim($doc->saveHTML() ?: 'An error occured');
     }
 
     /**

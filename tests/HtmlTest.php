@@ -63,6 +63,12 @@ Csv::load('somefile.csv');
 Csv::toArray(myvar);
 </code>
 </pre>
+<div class="some buttons">
+<button type="button" class="btn btn-primary">Primary</button>
+<button type="button" class="btn btn-secondary">Secondary</button>
+<button type="button" class="btn btn-success">Success</button>
+<button type="button" class="btn btn-danger">Danger</button>
+</div>
 EOF;
 
         $expected = <<< EOF
@@ -71,8 +77,9 @@ EOF;
 Csv::load('somefile.csv');
 Csv::toArray(myvar);
 </code>
-</pre></body></html>
+</pre><div class="some buttons"><button type="button" class="btn btn-primary">Primary</button><button type="button" class="btn btn-secondary">Secondary</button><button type="button" class="btn btn-success">Success</button><button type="button" class="btn btn-danger">Danger</button></div></body></html>
 EOF;
+        echo html::minify($html);
         $this->assertEquals($expected, html::minify($html));
     }
 
