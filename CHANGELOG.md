@@ -6,13 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [1.1.0] - 2020-09-21
+## [1.1.1] - 2020-09-13
+
+### Fixed
+
+- Fixed test which was failing on PHP 7.2 due to EOT
+
+## [1.1.0] - 2020-09-13
 
 ### Changed
 
 - Changed the HTML minify to attempt to preserve some spaces between elements, e.g. buttons, links.
 
-## [1.0.2] - 2020-09-20
+## [1.0.2] - 2020-09-12
 
 ### Fixed
 
