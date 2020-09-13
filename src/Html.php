@@ -79,10 +79,13 @@ class Html
                 continue;
             }
             /**
-             * Really want to strip new lines in between tags, however certain elements require
-             * a space to be displayed properly
+             * Really want to strip new lines in between tags, however new lines between inline
+             * tags are treated as space. If the node value has any text then remove new lines & tabs,
+             * else replace with a space for inline elements.
+             * @see https://www.w3.org/TR/REC-html40/struct/text.html#h-9.1
              */
-            $node->nodeValue = str_replace(["\r\n", "\n", "\r", "\t"], '', $node->nodeValue);
+            $replace = preg_match('/\S/', $node->nodeValue) ? '' : ' ';
+            $node->nodeValue = str_replace(["\r\n", "\n", "\r", "\t"], $replace, $node->nodeValue);
             $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
          
             # Check parent and one level up for e.g pre + code Not sure of other examples

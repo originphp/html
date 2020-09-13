@@ -71,15 +71,14 @@ Csv::toArray(myvar);
 </div>
 EOF;
 
-        $expected = <<< EOF
-<html><body><h1>Heading #1</h1><h2>Heading #2</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae lobortis diam. Nam porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.</p><p>Use <a href="https://www.google.com">Google</a> to do some searches.</p><ul><li> List #1 </li><li>List #1</li></ul><div><img src="https://www.google.com/img/logo.png"></div><blockquote>Life is what happens when you're busy making other plans.</blockquote><div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</div><pre>
-<code>
-Csv::load('somefile.csv');
-Csv::toArray(myvar);
-</code>
-</pre><div class="some buttons"><button type="button" class="btn btn-primary">Primary</button><button type="button" class="btn btn-secondary">Secondary</button><button type="button" class="btn btn-success">Success</button><button type="button" class="btn btn-danger">Danger</button></div></body></html>
-EOF;
-        echo html::minify($html);
+        $expected = <<< EOT
+        <html><body><h1>Heading #1</h1><h2>Heading #2</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae lobortis diam. Nam porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.</p><p>Use <a href="https://www.google.com">Google</a> to do some searches.</p><ul><li> List #1 </li><li>List #1</li></ul><div><img src="https://www.google.com/img/logo.png"></div><blockquote>Life is what happens when you're busy making other plans.</blockquote><div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</div><pre>
+        <code>
+        Csv::load('somefile.csv');
+        Csv::toArray(myvar);
+        </code>
+        </pre><div class="some buttons"> <button type="button" class="btn btn-primary">Primary</button> <button type="button" class="btn btn-secondary">Secondary</button> <button type="button" class="btn btn-success">Success</button> <button type="button" class="btn btn-danger">Danger</button> </div></body></html>
+        EOT;
         $this->assertEquals($expected, html::minify($html));
     }
 
