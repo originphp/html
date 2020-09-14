@@ -74,7 +74,7 @@ class Html
         }
 
         foreach ((new DOMXPath($doc))->query('//text()') as $node) {
-
+          
             // check parent and parent plus 1
             if (in_array($node->parentNode->nodeName, $keepWhitespace) || in_array($node->parentNode->parentNode->nodeName, $keepWhitespace)) {
                 continue;
@@ -88,13 +88,13 @@ class Html
             $replace = $containsText ? '' : ' ';
             $node->nodeValue = str_replace(["\r\n", "\n", "\r", "\t"], $replace, $node->nodeValue);
             $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
-       
+
+            
             if ($containsText) {
-                $node->nodeValue = trim($node->nodeValue);
                 continue;
             }
             
-            # Remove spaces between tags that are not inline elements
+            // Remove spaces between tags that are not inline elements
             if ($node->previousSibling && ! in_array($node->previousSibling->nodeName, $inlineElements)) {
                 $node->nodeValue = '';
             } elseif ($node->nextSibling && ! in_array($node->nextSibling->nodeName, $inlineElements)) {
