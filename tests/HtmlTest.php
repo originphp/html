@@ -70,6 +70,10 @@ Csv::toArray(myvar);
 <button type="button" class="btn btn-danger">Danger</button>
 </div>
 EOF;
+
+        /**
+         * @internal note the first list #1
+         */
         // EOT
         $expected = <<< EOF
 <html><body><h1>Heading #1</h1><h2>Heading #2</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae lobortis diam. Nam porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.</p><p>Use <a href="https://www.google.com">Google</a> to do some searches.</p><ul><li> List #1 </li><li>List #1</li></ul><div><img src="https://www.google.com/img/logo.png"></div><blockquote>Life is what happens when you're busy making other plans.</blockquote><div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</div><pre>
@@ -164,8 +168,9 @@ EOF;
 Emphasis, aka italics, with asterisks or underscores.
 Strong emphasis, aka bold, with asterisks or underscores.
 Combined emphasis with asterisks and underscores.
-Strikethrough uses two tildes. Scratch this. 
+Strikethrough uses two tildes. Scratch this.
 EOF;
+  
         $this->assertStringContainsString($expected, Html::toText($html));
 
         $html = '<span>%</span><p>You can use the <a href="https://github.com/googleapis/google-api-php-client/tree/master/examples">Google API</a> to access various Google services.</p><span>%</span>';
