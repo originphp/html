@@ -79,23 +79,26 @@ class Html
             if (in_array($node->parentNode->nodeName, $keepWhitespace) || in_array($node->parentNode->parentNode->nodeName, $keepWhitespace)) {
                 continue;
             }
+           
             /**
-             * Really want to strip new lines in between tags, however new lines between inline
-             * tags are treated as space. If the node value has any text then remove new lines & tabs,
-             * else replace with a space for inline elements.
+             * HTML renders new lines as spaces between inline
              * @see https://www.w3.org/TR/REC-html40/struct/text.html#h-9.1
              */
-            $replace = preg_match('/\S/', $node->nodeValue) ? '' : ' ';
+            $containsText = preg_match('/\w/im', $node->nodeValue);
+            $replace = $containsText ? '' : ' ';
             $node->nodeValue = str_replace(["\r\n", "\n", "\r", "\t"], $replace, $node->nodeValue);
             $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
-         
-            # Check parent and one level up for e.g pre + code Not sure of other examples
-            if ($node->previousSibling && ! in_array($node->previousSibling->nodeName, $keepWhitespaceAround)) {
-                $node->nodeValue = ltrim($node->nodeValue);
+       
+            if ($containsText) {
+                $node->nodeValue = trim($node->nodeValue);
+                continue;
             }
             
-            if ($node->nextSibling && ! in_array($node->nextSibling->nodeName, $keepWhitespaceAround)) {
-                $node->nodeValue = rtrim($node->nodeValue);
+            # Remove spaces between tags that are not inline elements
+            if ($node->previousSibling && ! in_array($node->previousSibling->nodeName, $inlineElements)) {
+                $node->nodeValue = '';
+            } elseif ($node->nextSibling && ! in_array($node->nextSibling->nodeName, $inlineElements)) {
+                $node->nodeValue = '';
             }
         }
 
