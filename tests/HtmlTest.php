@@ -169,11 +169,11 @@ EOF;
     public function testToTextLinks()
     {
         $html = '<a href="https://www.google.com">Google</a>';
-        $expected = '[Google](https://www.google.com)';
+        $expected = 'Google [https://www.google.com]';
         $this->assertStringContainsString($expected, Html::toText($html));
 
         $html = '<a href="https://www.google.com/search?q=some_underscored_keyword&results=100">Number #1 Search Engine & Favourite</a>';
-        $expected = '[Number #1 Search Engine & Favourite](https://www.google.com/search?q=some_underscored_keyword&results=100)';
+        $expected = 'Number #1 Search Engine & Favourite [https://www.google.com/search?q=some_underscored_keyword&results=100]';
         $this->assertStringContainsString($expected, Html::toText($html));
     }
 
@@ -200,7 +200,7 @@ EOF;
         $this->assertStringContainsString($expected, Html::toText($html));
 
         $html = '<span>%</span><p>You can use the <a href="https://github.com/googleapis/google-api-php-client/tree/master/examples">Google API</a> to access various Google services.</p><span>%</span>';
-        $expected = "\nYou can use the [Google API](https://github.com/googleapis/google-api-php-client/tree/master/examples) to access various Google services.\n";
+        $expected = "\nYou can use the Google API [https://github.com/googleapis/google-api-php-client/tree/master/examples] to access various Google services.\n";
      
         $this->assertStringContainsString($expected, Html::toText($html));
     }
@@ -353,7 +353,7 @@ EOF;
         /**
          * Opened the html version ^^^ in browser, and almost identicaly to output
          */
-        $this->assertEquals('acf6db214221b90f6b2cf2fca88886ce', md5(Html::toText($html)));
+        $this->assertEquals('82ae2465346e1f212b3c3c14b9405295', md5(Html::toText($html)));
        
         // Non Format version
         $expected = 'b5168459b7ab4f01055ed05572530bc0';
