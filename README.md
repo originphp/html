@@ -143,8 +143,8 @@ Benefits of using Google:
 
 Important links:
 
-- [Google's Wikipedia Page](https://en.wikipedia.org/wiki/Google)
-- [Alphabet](https://abc.xyz/)
+- Google's Wikipedia Page [https://en.wikipedia.org/wiki/Google]
+- Alphabet [https://abc.xyz/]
 
 Financial Results
 -----------------
@@ -195,6 +195,13 @@ Minify cleans up the spacing, removes comments and thus minifies a HTML string.
 $minified = Html::minify($html);
 ```
 
+The following options are supported
+
+- collapseWhitespace: default:true. Collapse whitespace in the text nodes
+- conservativeCollapse: default:false. Always collapse whitespace to at least 1 space
+- collapseInlineTagWhitespace: default:false. Don't leave any spaces between inline elements.
+- minifyJs: default:false minifies inline Javascript (beta)
+- minifyCss: default:false minifies inline CSS (beta)
 
 ## Sanitize
 
