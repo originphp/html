@@ -180,7 +180,7 @@ class Html
         $process = ['a', 'img', 'br', 'code', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table','li','ul', 'ol', 'blockquote'];
 
         if ($options['format'] === false) {
-            $process = ['ul', 'ol'];
+            $process = ['img','a','ul', 'ol']; // li?
         }
     
         /**
@@ -189,7 +189,7 @@ class Html
         foreach ($process as $needle) {
             $nodes = $doc->getElementsByTagName($needle);
             foreach ($nodes as $node) {
-                static::processTag($node, $doc);
+                static::processTag($node, $doc, $options['format']);
             }
         }
  
@@ -216,15 +216,22 @@ class Html
      * @internal Attempting to modify the dom causes strange issues and even recursion
      * @param \DOMNode $tag
      * @param \DOMDocument $doc
+     * @param boolean $format
      * @return void
      */
-    protected static function processTag(DOMNode $tag, DOMDocument $doc): void
+
+    protected static function processTag(DOMNode $tag, DOMDocument $doc, bool $format = true): void
     {
         $value = static::htmlspecialchars($tag->nodeValue);
 
         switch ($tag->tagName) {
             case 'a':
-                $tag->nodeValue = "[{$value}](" . static::htmlspecialchars($tag->getAttribute('href'))  . ')';
+                if ($format) {
+                    $tag->nodeValue = "[{$value}](" . static::htmlspecialchars($tag->getAttribute('href'))  . ')';
+                } else {
+                    $tag->nodeValue = "{$value} [" . static::htmlspecialchars($tag->getAttribute('href'))  . ']';
+                }
+              
                 break;
             case 'br':
                 $tag->nodeValue = PHP_EOL;
