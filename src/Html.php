@@ -140,7 +140,7 @@ class Html
                     $node->nodeValue = rtrim($node->nodeValue);
                 }
                 /**
-                 * @internal I added this as it made sense but it does not affect anything, need to test
+                 * I have added this for when there are no siblings and its not in an inline element.
                  */
                 if (! $node->previousSibling && ! $node->nextSibling && ! in_array($node->parentNode->nodeName, $inlineElements)) {
                     $node->nodeValue = trim($node->nodeValue);
