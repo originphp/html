@@ -208,7 +208,7 @@ class Html
         foreach ($process as $needle) {
             $nodes = $doc->getElementsByTagName($needle);
             foreach ($nodes as $node) {
-                static::processTag($node, $doc, $options['format']);
+                static::processTag($node, $doc);
             }
         }
  
@@ -239,18 +239,13 @@ class Html
      * @return void
      */
 
-    protected static function processTag(DOMNode $tag, DOMDocument $doc, bool $format = true): void
+    protected static function processTag(DOMNode $tag, DOMDocument $doc): void
     {
         $value = static::htmlspecialchars($tag->nodeValue);
 
         switch ($tag->tagName) {
             case 'a':
-                if ($format) {
-                    $tag->nodeValue = "[{$value}](" . static::htmlspecialchars($tag->getAttribute('href'))  . ')';
-                } else {
-                    $tag->nodeValue = "{$value} [" . static::htmlspecialchars($tag->getAttribute('href'))  . ']';
-                }
-              
+                $tag->nodeValue = "{$value} [" . static::htmlspecialchars($tag->getAttribute('href'))  . ']';
                 break;
             case 'br':
                 $tag->nodeValue = PHP_EOL;
