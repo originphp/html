@@ -51,17 +51,34 @@ class Html
     /**
      * Minifies HTML
      *
+     * @see https://www.w3.org/TR/REC-html40/struct/text.html#h-9.1
+     *
      * @param string $html
-     * @return string|null
+     * @param array $options
+     *  - conservativeCollapse: default:false. Always collapse whitespace to at least 1 space
+     *  - collapseWhitespace: default:true. remove spaces between tags
+     *  into problems.
+     * @return string
      */
-    public static function minify(string $html): string
+    public static function minify(string $html, array $options = []): string
     {
-        $keepWhitespace = ['address', 'pre', 'script', 'style'];
-
-        $inlineElements = [
-            'a','abbr','acronym','b','bdo','big','br','button','cite','code','dfn','em','i','img','input','kbd','label','map','object','output','q','samp','script','select','small','span','strong','sub','sup','textarea','time','tt','var'
+        $options += [
+            'conservativeCollapse' => false,
+            'collapseWhitespace' => true,
+            'minifyJs' => true,
+            'minifyCss' => true
+        
         ];
-      
+
+        $keepWhitespace = ['address', 'pre', 'script', 'style'];
+        /**
+         * Many lists are incomplete, this list is merge from multiple
+         * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements
+         */
+        $inlineElements = [
+            'a','abbr','acronym','audio','b','bdi','bdo','big','br','button','canvas','cite','code','data','datalist','del','dfn','em','embed','i','iframe','img','input','ins','kbd','label','map','mark','meter','noscript','object','output','picture','progress','q','ruby','s','samp','script','select','small','span','strong','sub','sup','textarea','time','tt','var'
+        ];
+
         $doc = new DOMDocument();
         $doc->preserveWhiteSpace = false;
         $doc->formatOutput = false;
@@ -74,34 +91,54 @@ class Html
         }
 
         foreach ((new DOMXPath($doc))->query('//text()') as $node) {
-          
+            if (($options['minifyJs'] && $node->parentNode->nodeName === 'script') || $options['minifyCss'] && $node->parentNode->nodeName === 'style') {
+                $node->nodeValue = preg_replace('/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/m', '', $node->nodeValue);
+                $node->nodeValue = preg_replace('/[^\S ]+/s', $options['conservativeCollapse'] ? ' ' : '', $node->nodeValue);
+                // convert multiple spaces into single space
+                $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
+            }
             // check parent and parent plus 1
             if (in_array($node->parentNode->nodeName, $keepWhitespace) || in_array($node->parentNode->parentNode->nodeName, $keepWhitespace)) {
                 continue;
             }
-           
+
+            $previousIsInline = $node->previousSibling && in_array($node->previousSibling->nodeName, $inlineElements);
+            $nextIsInline = $node->nextSibling && in_array($node->nextSibling->nodeName, $inlineElements);
+            $betweenInline = $previousIsInline && $nextIsInline;
+
             /**
-             * HTML renders new lines as spaces between inline
-             * @see https://www.w3.org/TR/REC-html40/struct/text.html#h-9.1
+             * Whitespace between block elements are ignored and whitespace between inline elements
+             * are transformed into a space
              */
-            $containsText = preg_match('/\w/im', $node->nodeValue);
-            $replace = $containsText ? '' : ' ';
-            $node->nodeValue = str_replace(["\r\n", "\n", "\r", "\t"], $replace, $node->nodeValue);
+            $replace = ($options['conservativeCollapse'] || $betweenInline) ? ' '  : '';
+
+            // replace whitespace characters
+            $node->nodeValue = preg_replace('/[^\S ]+/s', $replace, $node->nodeValue);
+            // convert multiple spaces into single space
             $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
 
-            
-            if ($containsText) {
-                continue;
+            /**
+             * Clean up in tag values, this needs to be done carefully hence the ltrim & rtrim
+             * cleans up things like <h1> heading </h1>
+             */
+            if (! $options['conservativeCollapse'] && $node->nodeValue !== ' ') {
+                if ($node->previousSibling && ! $previousIsInline) {
+                    $node->nodeValue = ltrim($node->nodeValue);
+                }
+                if ($node->nextSibling && ! $nextIsInline) {
+                    $node->nodeValue = rtrim($node->nodeValue);
+                }
             }
-            
-            // Remove spaces between tags that are not inline elements
-            if ($node->previousSibling && ! in_array($node->previousSibling->nodeName, $inlineElements)) {
-                $node->nodeValue = '';
-            } elseif ($node->nextSibling && ! in_array($node->nextSibling->nodeName, $inlineElements)) {
+
+            /**
+             * Whitespace markup is displayed a textnode in HTML markup
+             */
+            if ($node->nodeValue === ' ' && ($options['collapseWhitespace'] && ! $betweenInline)) {
                 $node->nodeValue = '';
             }
         }
-
+       
+        // returns body tag if not provided
         return trim($doc->saveHTML() ?: 'An error occured');
     }
 
