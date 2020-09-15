@@ -34,56 +34,81 @@ class HtmlTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, Html::fromText($text));
     }
 
-    public function testMinify()
+    /**
+     * @dataProvider provider
+     *
+     * @param string $html
+     */
+    public function testMinifyDefault(string $html)
+    {
+       
+        /**
+         * - [ ] check spaces before and after LI contents
+         * - [ ] check spaces before and after tags, should all be removed except buttons
+         * - [ ] check buttons have spaces which are from newlines
+         */
+        // EOT fails on PHP 7.2
+        $expected = <<< EOF
+<html><body><h1>Heading #1</h1><h2>Heading #2</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae lobortis diam. Nam porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.</p><p>Use <a href="https://www.google.com">Google</a> to do some searches.</p><ul><li>List #1</li><li>List #1</li></ul><div><img src="https://www.google.com/img/logo.png"></div><blockquote>Life is what happens when you're busy making other plans.</blockquote><div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</div><pre>
+<code>
+Csv::load('somefile.csv');
+Csv::toArray(myvar);
+</code>
+</pre><div class="some buttons"><button type="button" class="btn btn-primary">Primary</button> <button type="button" class="btn btn-secondary">Secondary</button> <button type="button" class="btn btn-success">Success</button> <button type="button" class="btn btn-danger">Danger</button></div></body></html>
+EOF;
+
+        $this->assertEquals($expected, html::minify($html));
+    }
+
+    public function testMinifyComments()
     {
         $html = <<< EOF
-<h1>
-Heading #1
-</h1>
-<h2>Heading #2</h2>
-<p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.    Nulla vitae lobortis diam. Nam    porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et 
-commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet 
-pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.
-
-</p>
-<p>Use <a href="https://www.google.com">Google</a> to do some searches.</p>
-<ul>
-    <li>
-    List #1
-    </li>
-    <li>List #1</li>
-</ul>
-<div><img src="https://www.google.com/img/logo.png"></div>
-<blockquote>Life is what happens when you're busy making other plans.</blockquote>
-<div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</span></div>
-<pre>
-<code>
-Csv::load('somefile.csv');
-Csv::toArray(myvar);
-</code>
-</pre>
-<div class="some buttons">
-<button type="button" class="btn btn-primary">Primary</button>
-<button type="button" class="btn btn-secondary">Secondary</button>
-<button type="button" class="btn btn-success">Success</button>
-<button type="button" class="btn btn-danger">Danger</button>
+<div>
+<!-- Html Comment -->
+<h1>Header</h1>
+<script>
+function a() {
+// nothing
+}
+var x = 0; // just x
+/*
+ foo = bar
+*/
+</script>
+<p>nothing to see here</p>
 </div>
 EOF;
+        $expected = '<html><body><div><h1>Header</h1><script>function a() {}var x = 0;</script><p>nothing to see here</p></div></body></html>';
+        $this->assertEquals($expected, Html::minify($html, ['minifyJs' => true,'minifyCss' => true]));
+    }
 
-        /**
-         * @internal note the first list #1
-         */
-        // EOT
-        $expected = <<< EOF
-<html><body><h1>Heading #1</h1><h2>Heading #2</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae lobortis diam. Nam porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.</p><p>Use <a href="https://www.google.com">Google</a> to do some searches.</p><ul><li> List #1 </li><li>List #1</li></ul><div><img src="https://www.google.com/img/logo.png"></div><blockquote>Life is what happens when you're busy making other plans.</blockquote><div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</div><pre>
-<code>
-Csv::load('somefile.csv');
-Csv::toArray(myvar);
-</code>
-</pre><div class="some buttons"> <button type="button" class="btn btn-primary">Primary</button> <button type="button" class="btn btn-secondary">Secondary</button> <button type="button" class="btn btn-success">Success</button> <button type="button" class="btn btn-danger">Danger</button> </div></body></html>
-EOF;
-        $this->assertEquals($expected, html::minify($html));
+    /**
+     * @dataProvider provider
+     *
+     * @param string $html
+     */
+    public function testMinifySettings(string $html)
+    {
+        $minified = html::minify($html, [
+            'conservativeCollapse' => false,
+            'collapseInlineTagWhitespace' => false
+        ]);
+        $this->assertStringContainsString('<h1>Heading #1</h1>', $minified); // collapseWhitespace = true
+        $this->assertStringContainsString('Primary</button> <button', $minified); // inline element
+
+        $minified = html::minify($html, [
+            'conservativeCollapse' => true,
+            'collapseInlineTagWhitespace' => false
+        ]);
+        $this->assertStringContainsString('<h1> Heading #1 </h1> <h2>Heading #2</h2>', $minified); // collapseWhitespace = true
+        $this->assertStringContainsString('Primary</button> <button', $minified); // inline element
+
+        $minified = html::minify($html, [
+            'conservativeCollapse' => false,
+            'collapseInlineTagWhitespace' => true
+        ]);
+        $this->assertStringContainsString('<h1>Heading #1</h1>', $minified); // collapseWhitespace = true
+        $this->assertStringContainsString('Primary</button><button', $minified); // inline element
     }
 
     /**
@@ -164,18 +189,19 @@ EOF;
         two tildes. <del>Scratch this.</del>
         </p><span>*</span>';
 
+        /** copied from HTML rendering of the above html */
         $expected = <<< EOF
 Emphasis, aka italics, with asterisks or underscores.
 Strong emphasis, aka bold, with asterisks or underscores.
 Combined emphasis with asterisks and underscores.
 Strikethrough uses two tildes. Scratch this.
 EOF;
-  
+
         $this->assertStringContainsString($expected, Html::toText($html));
 
         $html = '<span>%</span><p>You can use the <a href="https://github.com/googleapis/google-api-php-client/tree/master/examples">Google API</a> to access various Google services.</p><span>%</span>';
         $expected = "\nYou can use the [Google API](https://github.com/googleapis/google-api-php-client/tree/master/examples) to access various Google services.\n";
-        
+     
         $this->assertStringContainsString($expected, Html::toText($html));
     }
 
@@ -204,7 +230,7 @@ EOF;
     public function testToTextSubListOrdered()
     {
         $html = '<h2>A Nested List</h2><p>List can be nested (lists inside lists):</p><ul> <li>Coffee</li><li>Tea<ol> <li>Black tea</li><li>Green tea</li></ol></li> <li>Milk</li></ul>';
-
+ 
         $expected = "\n* Coffee\n* Tea\n   1. Black tea\n   2. Green tea\n* Milk";
         $this->assertStringContainsString($expected, Html::toText($html));
     }
@@ -234,6 +260,7 @@ EOF;
 </pre>
 <span>%</span>
 EOF;
+  
         $expected = "\n$ composer require orignphp/framework\n";
         $this->assertStringContainsString($expected, Html::toText($html));
 
@@ -313,7 +340,8 @@ company that specializes in Internet-related services and products, which includ
 <code class="devsite-terminal">composer require google/apiclient:^2.0</code>
 </pre>
 <p>Create a file called <code>quickstart.php</code> and add the following contents</p>
-<pre><code>require __DIR__ . '/vendor/autoload.php';
+<pre><code>
+require __DIR__ . '/vendor/autoload.php';
 
 if (php_sapi_name() != 'cli') {
     throw new Exception('This application must be run on the command line.');
@@ -322,12 +350,13 @@ if (php_sapi_name() != 'cli') {
 </code></pre>
 <p>Emphasis, aka italics, with <em>asterisks</em> or <em>underscores</em>.<br>Strong emphasis, aka bold, with <strong>asterisks</strong> or <strong>underscores</strong>.<br>Combined emphasis with <strong>asterisks and <em>underscores</em></strong>.<br>Strikethrough uses two tildes. <del>Scratch this.</del></p>
 EOF;
-        $expected = 'e58d553654c188ef178192cbdd3859ad';
- 
-        $this->assertEquals($expected, md5(Html::toText($html)));
+        /**
+         * Opened the html version ^^^ in browser, and almost identicaly to output
+         */
+        $this->assertEquals('acf6db214221b90f6b2cf2fca88886ce', md5(Html::toText($html)));
        
         // Non Format version
-        $expected = '89f7e9caa94a499e332848dba8cdac15';
+        $expected = 'b5168459b7ab4f01055ed05572530bc0';
         $this->assertEquals($expected, md5(Html::toText($html, ['format' => false])));
     }
 
@@ -359,5 +388,48 @@ EOF;
         // link href removed (Attribute)
         // image completely removed (element)
         $this->assertEquals('<div><h1>Heading</h1><a class="link">Google</a><div></div></div>', Html::sanitize($html, $tags));
+    }
+
+    public function provider()
+    {
+        $html = <<< EOF
+<h1>
+Heading #1
+</h1>
+
+<h2>Heading #2</h2>
+<p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.    Nulla vitae lobortis diam. Nam    porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et 
+commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet 
+pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.
+
+</p>
+<p>Use <a href="https://www.google.com">Google</a> to do some searches.</p>
+<ul>
+<li>
+List #1
+</li>
+<li>List #1</li>
+</ul>
+<div><img src="https://www.google.com/img/logo.png"></div>
+<blockquote>Life is what happens when you're busy making other plans.</blockquote>
+<div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</span></div>
+<pre>
+<code>
+Csv::load('somefile.csv');
+Csv::toArray(myvar);
+</code>
+</pre>
+<div class="some buttons">
+<button type="button" class="btn btn-primary">Primary</button>
+<button type="button" class="btn btn-secondary">Secondary</button>
+<button type="button" class="btn btn-success">Success</button>
+<button type="button" class="btn btn-danger">Danger</button>
+</div>
+EOF;
+
+        return [
+            [$html]
+        ];
     }
 }

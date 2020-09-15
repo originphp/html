@@ -54,19 +54,23 @@ class Html
      * @see https://www.w3.org/TR/REC-html40/struct/text.html#h-9.1
      *
      * @param string $html
-     * @param array $options
+     * @param array $options The following options keys are supported:
+     *  - collapseWhitespace: default:true. Collapse whitespace in the text nodes
      *  - conservativeCollapse: default:false. Always collapse whitespace to at least 1 space
-     *  - collapseWhitespace: default:true. remove spaces between tags
+     *  - collapseInlineTagWhitespace: default:false. Don't leave any spaces between inline elements.
+     *  - minifyJs: default:false minifies inline Javascript (beta)
+     *  - minifyCss: default:false minifies inline CSS (beta)
      *  into problems.
      * @return string
      */
     public static function minify(string $html, array $options = []): string
     {
         $options += [
-            'conservativeCollapse' => false,
             'collapseWhitespace' => true,
-            'minifyJs' => true,
-            'minifyCss' => true
+            'conservativeCollapse' => false,
+            'collapseInlineTagWhitespace' => false,
+            'minifyJs' => false,
+            'minifyCss' => false
         
         ];
 
@@ -97,6 +101,7 @@ class Html
                 // convert multiple spaces into single space
                 $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
             }
+
             // check parent and parent plus 1
             if (in_array($node->parentNode->nodeName, $keepWhitespace) || in_array($node->parentNode->parentNode->nodeName, $keepWhitespace)) {
                 continue;
@@ -118,22 +123,35 @@ class Html
             $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
 
             /**
-             * Clean up in tag values, this needs to be done carefully hence the ltrim & rtrim
-             * cleans up things like <h1> heading </h1>
+             * conservativeCollapse always leaves at least one space, so no trimming here
              */
-            if (! $options['conservativeCollapse'] && $node->nodeValue !== ' ') {
+            if ($options['conservativeCollapse']) {
+                continue;
+            }
+            /**
+             * Clean up in tag values, this needs to be done carefully hence the ltrim & rtrim
+             * cleans up things like <h1> heading </h1>.
+             */
+            if ($options['collapseWhitespace'] && $node->nodeValue !== ' ') {
                 if ($node->previousSibling && ! $previousIsInline) {
                     $node->nodeValue = ltrim($node->nodeValue);
                 }
                 if ($node->nextSibling && ! $nextIsInline) {
                     $node->nodeValue = rtrim($node->nodeValue);
                 }
+                /**
+                 * @internal I added this as it made sense but it does not affect anything, need to test
+                 */
+                if (! $node->previousSibling && ! $node->nextSibling && ! in_array($node->parentNode->nodeName, $inlineElements)) {
+                    $node->nodeValue = trim($node->nodeValue);
+                }
+                continue;
             }
 
             /**
-             * Whitespace markup is displayed a textnode in HTML markup
+             * How to handle empty text nodes (can be spaces between tags)
              */
-            if ($node->nodeValue === ' ' && ($options['collapseWhitespace'] && ! $betweenInline)) {
+            if ($node->nodeValue === ' ' && ($options['collapseInlineTagWhitespace'] || (! $options['conservativeCollapse'] && ! $betweenInline))) {
                 $node->nodeValue = '';
             }
         }
@@ -150,6 +168,7 @@ class Html
      *  - format: default:true formats output. If false then it will provide a cleaner
      * @return string
      */
+
     public static function toText(string $html, array $options = []): string
     {
         $options += ['format' => true];
