@@ -5,7 +5,11 @@
     "keywords": [
         "originphp",
         "html",
-        "html2text"
+        "html2text",
+        "minify",
+        "strip tags",
+        "sanitize",
+        "compress"
     ],
     "homepage": "https://www.originphp.com",
     "license": "MIT",
