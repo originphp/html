@@ -74,12 +74,35 @@ var x = 0; // just x
 /*
  foo = bar
 */
+var b = 1;
 </script>
 <p>nothing to see here</p>
 </div>
 EOF;
-        $expected = '<html><body><div><h1>Header</h1><script>function a() {}var x = 0;</script><p>nothing to see here</p></div></body></html>';
+
+        $expected = '<html><body><div><h1>Header</h1><script>function a() {}var x = 0; var b = 1;</script><p>nothing to see here</p></div></body></html>';
         $this->assertEquals($expected, Html::minify($html, ['minifyJs' => true,'minifyCss' => true]));
+    }
+
+    public function testMinifyInlineJS()
+    {
+        $html = <<< EOF
+        <h1>Heading</h1>
+        <script>
+        /**
+         * Multiline commment
+         */
+
+        var a = 1; // single line comment
+        // another comment
+        var b = 2;
+        /* c style comment on single line */
+        var c = a + b;
+        </script>
+        EOF;
+
+        $expected = '<html><body><h1>Heading</h1><script>var a = 1; var b = 2;var c = a + b;</script></body></html>';
+        $this->assertEquals($expected, Html::minify($html, ['minifyJs' => true]));
     }
 
     /**

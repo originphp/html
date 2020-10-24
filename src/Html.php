@@ -1,6 +1,4 @@
 <?php
-declare(strict_types = 1);
-
 /**
  * OriginPHP Framework
  * Copyright 2018 - 2020 Jamiel Sharief.
@@ -13,7 +11,7 @@ declare(strict_types = 1);
  * @link        https://www.originphp.com
  * @license     https://opensource.org/licenses/mit-license.php MIT License
  */
-
+declare(strict_types = 1);
 namespace Origin\Html;
 
 use DOMNode;
@@ -96,7 +94,10 @@ class Html
 
         foreach ((new DOMXPath($doc))->query('//text()') as $node) {
             if (($options['minifyJs'] && $node->parentNode->nodeName === 'script') || $options['minifyCss'] && $node->parentNode->nodeName === 'style') {
-                $node->nodeValue = preg_replace('/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/m', '', $node->nodeValue);
+                // remove multiline comments
+                $node->nodeValue = preg_replace('/\/\*[\s\S]*?\*\//', '', $node->nodeValue);
+                // single line comment (safe) there must be a space after the //
+                $node->nodeValue = preg_replace('/\/\/ .*/', '', $node->nodeValue);
                 $node->nodeValue = preg_replace('/[^\S ]+/s', $options['conservativeCollapse'] ? ' ' : '', $node->nodeValue);
                 // convert multiple spaces into single space
                 $node->nodeValue = preg_replace('/(\s)+/s', '\\1', $node->nodeValue);
