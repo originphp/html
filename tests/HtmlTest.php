@@ -87,19 +87,19 @@ EOF;
     public function testMinifyInlineJS()
     {
         $html = <<< EOF
-        <h1>Heading</h1>
-        <script>
-        /**
-         * Multiline commment
-         */
+<h1>Heading</h1>
+<script>
+/**
+ * Multiline commment
+ */
 
-        var a = 1; // single line comment
-        // another comment
-        var b = 2;
-        /* c style comment on single line */
-        var c = a + b;
-        </script>
-        EOF;
+var a = 1; // single line comment
+// another comment
+var b = 2;
+/* c style comment on single line */
+var c = a + b;
+</script>
+EOF;
 
         $expected = '<html><body><h1>Heading</h1><script>var a = 1; var b = 2;var c = a + b;</script></body></html>';
         $this->assertEquals($expected, Html::minify($html, ['minifyJs' => true]));
