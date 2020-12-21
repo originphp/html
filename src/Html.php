@@ -56,7 +56,7 @@ class Html
      * @param string $html
      * @return string
      */
-    protected static function removeWrapper(string $original, string $html): string
+    private static function removeWrapper(string $original, string $html): string
     {
         $html = trim($html);
 
@@ -245,7 +245,7 @@ class Html
      * @param string $value
      * @return mixed
      */
-    protected static function htmlspecialchars(string $value)
+    private static function htmlspecialchars(string $value)
     {
         if (strpos($value, '&') !== false) {
             $value = htmlspecialchars($value);
@@ -263,7 +263,7 @@ class Html
      * @return void
      */
 
-    protected static function processTag(DOMNode $tag, DOMDocument $doc): void
+    private static function processTag(DOMNode $tag, DOMDocument $doc): void
     {
         $value = static::htmlspecialchars($tag->nodeValue);
 
@@ -393,7 +393,7 @@ class Html
      * @param DOMNode $node
      * @return integer
      */
-    protected static function getIndentLevel(DOMNode $node): int
+    private static function getIndentLevel(DOMNode $node): int
     {
         $indent = 0;
         $checkLevelUp = true;
@@ -418,7 +418,7 @@ class Html
      * @param boolean $headers
      * @return array
      */
-    protected static function arrayToTable(array $array, bool $headers = true): array
+    private static function arrayToTable(array $array, bool $headers = true): array
     {
         // Calculate width of each column
         $widths = [];
@@ -521,7 +521,7 @@ class Html
      * @param array $tags
      * @return void
      */
-    protected static function _sanitize(DOMNode $node, array $tags = []): void
+    private static function _sanitize(DOMNode $node, array $tags = []): void
     {
         if ($node->hasChildNodes()) {
             for ($i = 0; $i < $node->childNodes->length; $i++) {
