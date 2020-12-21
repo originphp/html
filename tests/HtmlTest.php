@@ -49,12 +49,12 @@ class HtmlTest extends \PHPUnit\Framework\TestCase
          */
         // EOT fails on PHP 7.2
         $expected = <<< EOF
-<html><body><h1>Heading #1</h1><h2>Heading #2</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae lobortis diam. Nam porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.</p><p>Use <a href="https://www.google.com">Google</a> to do some searches.</p><ul><li>List #1</li><li>List #1</li></ul><div><img src="https://www.google.com/img/logo.png"></div><blockquote>Life is what happens when you're busy making other plans.</blockquote><div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</div><pre>
+<h1>Heading #1</h1><h2>Heading #2</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae lobortis diam. Nam porta magna nec porttitor bibendum. Vestibulum tristique lorem in urna hendrerit, et commodo velit suscipit. Sed imperdiet tincidunt condimentum. Aliquam erat volutpat. Cras rhoncus mauris at enim ultrices, sed consequat lectus aliquam. Nullam venenatis porta quam, sit amet pulvinar felis porttitor ut. Morbi vel vestibulum mi. Vestibulum id erat tortor. Integer ac semper elit.</p><p>Use <a href="https://www.google.com">Google</a> to do some searches.</p><ul><li>List #1</li><li>List #1</li></ul><div><img src="https://www.google.com/img/logo.png"></div><blockquote>Life is what happens when you're busy making other plans.</blockquote><div class="foo">Lorem <strong>ipsum</strong> <em>dolor</em> sit amet, <span>consectetur adipiscing</span> elit.</div><pre>
 <code>
 Csv::load('somefile.csv');
 Csv::toArray(myvar);
 </code>
-</pre><div class="some buttons"><button type="button" class="btn btn-primary">Primary</button> <button type="button" class="btn btn-secondary">Secondary</button> <button type="button" class="btn btn-success">Success</button> <button type="button" class="btn btn-danger">Danger</button></div></body></html>
+</pre><div class="some buttons"><button type="button" class="btn btn-primary">Primary</button> <button type="button" class="btn btn-secondary">Secondary</button> <button type="button" class="btn btn-success">Success</button> <button type="button" class="btn btn-danger">Danger</button></div>
 EOF;
 
         $this->assertEquals($expected, html::minify($html));
@@ -80,7 +80,7 @@ var b = 1;
 </div>
 EOF;
 
-        $expected = '<html><body><div><h1>Header</h1><script>function a() {}var x = 0; var b = 1;</script><p>nothing to see here</p></div></body></html>';
+        $expected = '<div><h1>Header</h1><script>function a() {}var x = 0; var b = 1;</script><p>nothing to see here</p></div>';
         $this->assertEquals($expected, Html::minify($html, ['minifyJs' => true,'minifyCss' => true]));
     }
 
@@ -101,7 +101,7 @@ var c = a + b;
 </script>
 EOF;
 
-        $expected = '<html><body><h1>Heading</h1><script>var a = 1; var b = 2;var c = a + b;</script></body></html>';
+        $expected = '<h1>Heading</h1><script>var a = 1; var b = 2;var c = a + b;</script>';
         $this->assertEquals($expected, Html::minify($html, ['minifyJs' => true]));
     }
 
@@ -454,5 +454,25 @@ EOF;
         return [
             [$html]
         ];
+    }
+    
+    /**
+     * Random checks
+     *
+     * @return void
+     */
+    public function testRemoveWrapper()
+    {
+        $html = '<p>Foo</p>';
+        $this->assertEquals($html, Html::minify($html));
+
+        $html = '<body><p>Foo</p></body>';
+        $this->assertEquals($html, Html::minify($html));
+
+        $html = '<body class="foo"><p>Foo</p></body>';
+        $this->assertEquals($html, Html::minify($html));
+
+        $html = '<html><body><p>Foo</p></body></html>';
+        $this->assertEquals($html, Html::minify($html));
     }
 }

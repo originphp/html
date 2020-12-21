@@ -47,6 +47,30 @@ class Html
     }
 
     /**
+     * When saving HTML from the DomDocument it adds a wrapper and
+     * LIBXML_HTML_NOIMPLIED is not stable
+     *
+     * @internal This is only suppose to remove wrapper added by DOMDocument
+     *
+     * @param string $original
+     * @param string $html
+     * @return string
+     */
+    protected static function removeWrapper(string $original, string $html): string
+    {
+        $html = trim($html);
+
+        if (! preg_match('/<html[^>]*>/i', $original) && substr($html, 0, 6) === '<html>' && substr($html, -7) === '</html>') {
+            $html = substr($html, 6, -7);
+        }
+        if (! preg_match('/<body[^>]*>/i', $original) && substr($html, 0, 6) === '<body>' && substr($html, -7) === '</body>') {
+            $html = substr($html, 6, -7);
+        }
+
+        return $html;
+    }
+
+    /**
      * Minifies HTML
      *
      * @see https://www.w3.org/TR/REC-html40/struct/text.html#h-9.1
@@ -157,8 +181,7 @@ class Html
             }
         }
        
-        // returns body tag if not provided
-        return trim($doc->saveHTML() ?: 'An error occured');
+        return static::removeWrapper($html, $doc->saveHTML() ?: 'An error occured');
     }
 
     /**
@@ -488,7 +511,7 @@ class Html
             static::_sanitize($node, $options); // body
         }
         
-        return preg_replace('~<(?:/?(?:html|body))[^>]*>\s*~i', '', $doc->saveHTML());
+        return static::removeWrapper($html, $doc->saveHTML() ?: 'An error occured');
     }
 
     /**
@@ -575,9 +598,8 @@ class Html
         foreach ($remove as $node) {
             $node->parentNode->removeChild($node);
         }
-        $content = preg_replace('~<(?:/?(?:html|body))[^>]*>\s*~i', '', $doc->saveHTML());
-
-        return trim($content);
+      
+        return static::removeWrapper($html, $doc->saveHTML() ?: 'An error occured');
     }
 
     /**
