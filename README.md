@@ -1,7 +1,7 @@
 # Html
 
 ![license](https://img.shields.io/badge/license-MIT-brightGreen.svg)
-[![build](https://travis-ci.org/originphp/html.svg?branch=master)](https://travis-ci.org/originphp/html)
+[![build](https://github.com/originphp/html/workflows/CI/badge.svg)](https://github.com/originphp/html/actions)
 [![coverage](https://coveralls.io/repos/github/originphp/html/badge.svg?branch=master)](https://coveralls.io/github/originphp/html?branch=master)
 
 The Html class provides some useful functions for when working with HTML.

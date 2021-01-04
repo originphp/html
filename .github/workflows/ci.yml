@@ -1,0 +1,47 @@
+#
+# OriginPHP Framework
+# Copyright 2021 Jamiel Sharief.
+#
+# Licensed under The MIT License
+# The above copyright notice and this permission notice shall be included in all copies or substantial
+# portions of the Software.
+#
+# @copyright    Copyright (c) Jamiel Sharief
+# @link         https://www.originphp.com
+# @license      https://opensource.org/licenses/mit-license.php MIT License
+#
+name: CI
+on:
+  push:
+jobs:
+  tests:
+    name: "PHP ${{ matrix.php-version }}"
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        php-version:
+          - "7.3"
+          - "7.4"
+          - "8.0"
+    steps:
+      - name: Checkout source code
+        uses: "actions/checkout@v2"
+      - name: Install PHP
+        uses: "shivammathur/setup-php@v2"
+        with:
+          coverage: "xdebug"
+          php-version: "${{ matrix.php-version }}"
+          tools: composer:v2
+      - name: Install dependencies
+        run: |
+          composer require php-coveralls/php-coveralls:^2.4 --dev --no-update
+          composer update --no-progress --prefer-dist
+      - name: Run PHPUnit
+        run: "php vendor/bin/phpunit --coverage-clover=clover.xml"
+      - name: Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: "php vendor/bin/php-coveralls --verbose"
+        if: ${{ success() }}
+      - name: Run PHPStan 
+        run: "vendor/bin/phpstan analyse src --error-format=github"
